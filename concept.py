@@ -1,20 +1,23 @@
 import re
-from typing import List, Optional
-from dataclasses import dataclass, field, InitVar
+import yaml
+
+from dataclasses import dataclass, field
+from typing import List
 
 
 
 
 @dataclass
 class Keywords:
-    exact: List[str]
-    fuzzy: List[str] = field(default_factory=list)      # regex patterns
+
+    keywords: List[str]
     required: List[str] = field(default_factory=list)
     excluded: List[str] = field(default_factory=list)
 
 
 @dataclass
 class KeywordsRegex:
+
     keywords: re.Pattern[str]
     required: re.Pattern[str] = field(default_factory=lambda: re.compile(''))
     excluded: re.Pattern[str] = field(default_factory=lambda: re.compile(''))
@@ -37,22 +40,26 @@ class Concept:
     name: str
 
     keywords: Keywords
-    rgx: KeywordsRegex = field(init=False)
+    regex: KeywordsRegex = field(init=False)
 
 
-    def __post_init__(self):
-        '''Create regex patterns for each phrase type'''
+    @classmethod
+    def from_dict(cls, args: dict) -> 'Concept':
+        '''Create a Concept instance from a dictionary (e.g., loaded from YAML)'''
 
-        self.rgx = KeywordsRegex(**{
-                keyword_type: self._to_query(keywords)
-                for keyword_type, keywords in (
-                    ('keywords', self.keywords.exact + self.keywords.fuzzy),
-                    ('required', self.keywords.required),
-                    ('excluded', self.keywords.excluded)
-                )
-                if keywords     # only run for non-empty phrase lists
-            }
-        )
+        keywords = Keywords(**args.pop('keywords', {}))
+
+        return cls(**args, keywords=keywords)
+
+
+    @classmethod
+    def from_yaml(cls, path: str) -> 'Concept':
+        '''Create a Concept instance from a YAML file'''
+
+        with open(path, 'r') as infl:
+            args = yaml.load(infl, Loader=yaml.FullLoader)
+
+        return cls.from_dict(args)
 
 
     @property
@@ -60,6 +67,21 @@ class Concept:
         '''Return the id of the concept'''
 
         return self.name.lower().replace(' ', '_')
+
+
+    def __post_init__(self, flags: re.RegexFlag = re.IGNORECASE | re.DOTALL):
+        '''Create regex patterns for each keyword type'''
+
+        self.regex = KeywordsRegex(**{
+                keyword_type: self._to_query(keywords, flags)
+                for keyword_type, keywords in (
+                    ('keywords', self.keywords.keywords),
+                    ('required', self.keywords.required),
+                    ('excluded', self.keywords.excluded)
+                )
+                if keywords     # only run for non-empty phrase lists
+            }
+        )
 
 
     def _to_query(self, keywords: List[str], flags: re.RegexFlag = re.IGNORECASE | re.DOTALL) -> re.Pattern[str]:
@@ -72,17 +94,6 @@ class Concept:
 
 # @dataclass
 # class Concept:
-#     '''
-#     A set of fuzzy-matched keywords for a specific concept
-
-#     For the concept, provide a list of exact phrases that relate to the concept.
-#     Optionally, provide a list of regex patterns to fuzzy match exact phrases.
-#     Optionally, provide a list of required phrases so that the (exact phrases OR fuzzy phrases)
-#     condition match documents iff required phrases are present as well.
-#     This helps with precision and reducing false positives/matching unrelated documents.
-#     Optionally, provide excluded phrases to further help avoiding unrelated documents that may
-#     spuriously contain an exact phrase and required phrase.
-#     '''
 
 #     concept_name: str
 
@@ -93,13 +104,6 @@ class Concept:
 #     fuzzy_keywords: InitVar[Optional[List[str]]] = []
 #     required_keywords: InitVar[Optional[List[str]]] = []
 #     excluded_keywords: InitVar[Optional[List[str]]] = []
-
-
-#     def _to_query(self, phrases: List[str]) -> str:
-#         '''Convert list of phrases to regex pattern'''
-
-#         assert phrases, 'Inputted list of phrases is empty'
-#         return '(?:' + "|".join([f'\b{p}\b' for p in phrases]) + ')'
 
 
 #     def __post_init__(self, exact_keywords, fuzzy_keywords, required_keywords, excluded_keywords):
@@ -122,13 +126,12 @@ class Concept:
 #         )
 
 
+#     def _to_query(self, phrases: List[str]) -> str:
+#         '''Convert list of phrases to regex pattern'''
+
+#         assert phrases, 'Inputted list of phrases is empty'
+#         return '(?:' + "|".join([f'\b{p}\b' for p in phrases]) + ')'
 
 
-if __name__ == "__main__":
 
 
-    # keywords = Keywords()
-    keywords_set = Concept('hi', Keywords(exact=['hi']))
-    # keywords_set = Concept('hi', exact_keywords=['hi'])
-    print(keywords_set)
-    print(keywords_set.__dict__)
