@@ -137,6 +137,7 @@ def match_keywords_worker(batch: pd.DataFrame, concept: Concept, collector: Resu
 def match_keywords(
     ds,
     concept: Concept,
+    collector: ResultCollector,
     max_batches: int = 1000, # None
     batch_size: int = 1000,
     max_concurrent_tasks: int = 7       # num cpus - 1
@@ -145,7 +146,6 @@ def match_keywords(
     futures = []
 
     concept_ref = ray.put(concept)
-    collector = ResultCollector.remote('matched.csv')
 
     pbar = tqdm(islice(ds.iter(batch_size), max_batches), total=max_batches, desc='Keyword Filter', dynamic_ncols=True)
     for batch in pbar:
@@ -183,6 +183,7 @@ if __name__ == '__main__':
     collector, n_documents = match_keywords(
         corpus_hf_ds['train'].select_columns(['id', 'text']).with_format('pandas'),
         concept,
+        collector=ResultCollector.remote(f'{Path(__file__).parent}/matched.csv'),
         max_batches=100,
         batch_size=10000,
         max_concurrent_tasks=15
