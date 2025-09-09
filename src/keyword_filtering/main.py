@@ -7,7 +7,7 @@ import threading
 import time
 from ray.util.state import list_tasks, list_actors
 import queue
-
+from pathlib import Path
 from itertools import islice
 from tqdm import tqdm
 from datasets import load_dataset
@@ -176,15 +176,15 @@ if __name__ == '__main__':
     corpus_hf_ds = load_dataset("EleutherAI/dclm-dedup-25B", streaming=True)
 
 
-    concept = Concept.from_yaml('concepts/alignment.yaml')
+    concept = Concept.from_yaml(f'{Path(__file__).parent}/concepts/alignment.yaml')
 
 
     print("Starting keyword matching process...")
     collector, n_documents = match_keywords(
         corpus_hf_ds['train'].select_columns(['id', 'text']).with_format('pandas'),
         concept,
-        max_batches=200,
-        batch_size=5000,
+        max_batches=100,
+        batch_size=10000,
         max_concurrent_tasks=15
     )
 
