@@ -1,0 +1,12 @@
+accelerate
+bitsandbytes
+datasets
+ipykernel
+ipywidgets
+# lmql
+pandas
+pyyaml
+ray[default]
+tokenizers
+torch
+transformers
