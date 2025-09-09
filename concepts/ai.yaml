@@ -1,0 +1,35 @@
+name: AI
+keywords:
+  keywords:
+    # - (?:mis|un|re)?align(?:ment|ed|ing|s)?
+    - \w*align\w*
+    # - x-risk|existential risk
+    - (?:x-|existential )risk
+    # - (?:sharp left turn|slt)(?:s)?
+    - (?:sharp left turn|slt)s?
+    # - reward[- ]hack(?:ing|ed|s)?
+    - (gradient|reward)[- ]hack\w*
+    - gam\w*
+    # - deceiv(?:e|ed|ing|es)|decepti(?:on|ons|ve|vely)
+    - deceiv\w+|decepti\w+
+    # - control(?:s|led|ling|ler|lers)?
+    - control\w*
+    # - (?:in)?corrigib(?:ility|le)
+    - \w*corrigib\w+
+    - over-?s\w+
+    - power[- ]seek\w*
+    - \w*bot
+    - transformer
+    - generative pre-?trained transformer|gpt
+    - emerg\w+(?:\s+\w*(?:abilit|behav)\w*)?
+    - (?:rational )agent
+    - actor
+    - goal
+    - model
+    - \w*general\w*
+  required:
+    - ai
+    - artificial intelligence
+    - machine learning
+    - neural network
+    - (?:large )?language model|llm|lm
