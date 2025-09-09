@@ -30,6 +30,6 @@ keywords:
   required:
     - ai
     - artificial intelligence
-    - machine learning
-    - neural network
+    - machine[- ]learning
+    - neural[- ]network
     - (?:large )?language model|llm|lm
