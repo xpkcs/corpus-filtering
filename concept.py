@@ -1,5 +1,6 @@
 import re
 import yaml
+import pandas as pd
 
 from dataclasses import dataclass, field
 from typing import List
@@ -88,7 +89,8 @@ class Concept:
         '''Convert list of keywords to regex pattern'''
 
         assert keywords, 'Inputted list of keywords is empty'
-        return re.compile(r'(?:' + r"|".join([rf'\b{p}\b' for p in keywords]) + r')', flags)
+        return re.compile(r'|'.join([rf'\b{p}\b' for p in keywords]), flags)
+        # return re.compile(r'(?:' + r"|".join([rf'\b{p}\b' for p in keywords]) + r')', flags)
 
 
 
@@ -131,6 +133,36 @@ class Concept:
 
 #         assert phrases, 'Inputted list of phrases is empty'
 #         return '(?:' + "|".join([f'\b{p}\b' for p in phrases]) + ')'
+
+
+
+def match_concept(documents: pd.Series, concept: Concept) -> pd.Series:
+    '''Match documents in a pandas Series against a concept. Returns a pandas Series of booleans indicating matches.'''
+
+    # return (
+    #     documents.str.contains(concept.rgx.keywords, regex=True) &
+    #     documents.str.contains(concept.rgx.required, regex=True) &
+    #     ~documents.str.contains(concept.rgx.excluded, regex=True)
+    # )
+
+
+    keywords_match = documents.str.contains(concept.regex.keywords, regex=True)
+
+    # Early exit if no keywords match
+    if not keywords_match.any():
+        return keywords_match
+
+    # Only check required/excluded on documents that do match keywords
+    if concept.regex.required:
+        required_match = documents.str.contains(concept.regex.required, regex=True)
+        keywords_match = keywords_match & required_match
+
+    if concept.regex.excluded and keywords_match.any():
+        excluded_match = documents.str.contains(concept.regex.excluded, regex=True)
+        keywords_match = keywords_match & ~excluded_match
+
+
+    return keywords_match
 
 
 
