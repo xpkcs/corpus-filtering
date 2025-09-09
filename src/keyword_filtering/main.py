@@ -184,9 +184,9 @@ if __name__ == '__main__':
         corpus_hf_ds['train'].select_columns(['id', 'text']).with_format('pandas'),
         concept,
         collector=ResultCollector.remote(f'{Path(__file__).parent}/matched.csv'),
-        max_batches=100,
-        batch_size=10000,
-        max_concurrent_tasks=15
+        # max_batches=100,
+        # batch_size=10000,
+        # max_concurrent_tasks=15
     )
 
     n_documents_matched = ray.get(collector.n_records.remote())
