@@ -1,6 +1,7 @@
 accelerate
 bitsandbytes
 datasets
+flash-attn
 ipykernel
 ipywidgets
 # lmql
