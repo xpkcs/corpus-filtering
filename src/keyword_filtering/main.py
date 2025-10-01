@@ -97,7 +97,7 @@ class ResultCollector:
         pd.concat(dfs_list, ignore_index=True).to_csv(self.file, index=False, header=self._n_records == 0, lineterminator='\n')
         self._n_records += total_records
 
-        print(f"Wrote {total_records} records ({len(dfs_list)} batches)")
+        print(f"Wrote {total_records} records ({len(dfs_list)} batches) | Total written: {self._n_records}")
 
         # Force flush to disk
         self.file.flush()
@@ -122,7 +122,6 @@ class ResultCollector:
 
         self.file.close()
         print(f"File closed. Total records written: {self._n_records}")
-
 
 
 @ray.remote
@@ -176,7 +175,9 @@ if __name__ == '__main__':
     corpus_hf_ds = load_dataset("EleutherAI/dclm-dedup-25B", streaming=True)
 
 
-    concept = Concept.from_yaml(f'{Path(__file__).parent}/concepts/alignment.yaml')
+    concept = Concept.from_yaml(f'{Path(__file__).parent}/concepts/ai-large.yaml')
+    print(concept.regex.keywords.pattern)
+    print(concept.regex.required.pattern)
 
 
     print("Starting keyword matching process...")
