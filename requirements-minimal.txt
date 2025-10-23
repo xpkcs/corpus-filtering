@@ -1,0 +1,6 @@
+click
+ipykernel
+ipywidgets
+pandas
+python-dotenv
+scikit-learn
