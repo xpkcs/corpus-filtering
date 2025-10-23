@@ -136,7 +136,7 @@ def evaluate(dataset_id: str, results_dir: Path, true_df_fp: Path):
 
 
 
-    return eval_df, metrics
+    return eval_df
 
 
 
