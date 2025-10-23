@@ -245,9 +245,9 @@ class FireworksClient:
             Exception: If download fails
         """
         if output_dir is None:
-            output_dir = Path.cwd()
+            output_dir = Path.cwd() / dataset_id
         else:
-            output_dir = Path(output_dir)
+            output_dir = Path(output_dir) / dataset_id
             output_dir.mkdir(parents=True, exist_ok=True)
 
         # Get download endpoint
@@ -482,7 +482,7 @@ def validate(jsonl_fp: Path):
               help='Batch inference job ID')
 @click.option('--max-tokens', '-t',
               type=int,
-              default=2048,
+              default=4096,
               help='Maximum tokens for inference')
 @click.option('--temperature', '-temp',
               type=float,
